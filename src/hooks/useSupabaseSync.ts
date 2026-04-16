@@ -105,12 +105,13 @@ export function useSupabaseSync() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'messages' },
         (payload) => {
+          console.log('New message received via real-time:', payload)
           const { new: newRecord } = payload
           const newMessage = {
             id: newRecord.id,
             content: newRecord.content,
             userId: newRecord.user_id,
-            createdAt: newRecord.created_at
+            createdAt: newRecord.created_at || new Date().toISOString()
           }
           
           useKanbanStore.setState((state) => ({
@@ -120,7 +121,9 @@ export function useSupabaseSync() {
           }))
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        console.log('Messages real-time status:', status)
+      })
 
     return () => {
       supabase.removeChannel(tasksChannel)
