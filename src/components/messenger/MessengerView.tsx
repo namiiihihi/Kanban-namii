@@ -89,8 +89,9 @@ export default function MessengerView() {
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-6 max-w-4xl mx-auto">
             {messages.map((msg, index) => {
-              const sender = members.find(m => m.id === msg.userId)
+              const senderFromMembers = members.find(m => m.id === msg.userId)
               const isMe = msg.userId === currentUser?.id
+              const sender = senderFromMembers || (isMe ? currentUser : null)
               const showAvatar = index === 0 || messages[index - 1].userId !== msg.userId
 
               return (

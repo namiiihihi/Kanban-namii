@@ -200,7 +200,12 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       }])
     }
 
-    set({ currentUser: user })
+    set((state) => ({ 
+      currentUser: user,
+      members: state.members.some(m => m.id === user.id) 
+        ? state.members 
+        : [...state.members, user]
+    }))
     localStorage.setItem('kanban_user', JSON.stringify(user))
   },
 
