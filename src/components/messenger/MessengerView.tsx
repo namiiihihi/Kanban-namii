@@ -36,7 +36,7 @@ export default function MessengerView() {
   }, [messages.length])
 
   return (
-    <div className="h-full flex bg-white/40 backdrop-blur-md overflow-hidden">
+    <div className="absolute inset-0 flex bg-white/40 backdrop-blur-md overflow-hidden">
       {/* Members Sidebar */}
       <div className="w-64 border-r border-pink-50 flex flex-col bg-white/40">
         <div className="p-4 border-b border-pink-50 flex items-center justify-between">
