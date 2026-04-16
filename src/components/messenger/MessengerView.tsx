@@ -10,13 +10,22 @@ import { format } from 'date-fns'
 export default function MessengerView() {
   const { messages, members, currentUser, sendMessage } = useKanbanStore()
   const [inputValue, setInputValue] = useState('')
+  const [isSending, setIsSending] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!inputValue.trim()) return
-    await sendMessage(inputValue)
-    setInputValue('')
+    if (!inputValue.trim() || isSending) return
+    
+    const content = inputValue.trim()
+    setInputValue('') // Clear immediately to prevent double-send
+    setIsSending(true)
+    
+    try {
+      await sendMessage(content)
+    } finally {
+      setIsSending(false)
+    }
   }
 
   // Auto scroll to bottom
@@ -141,11 +150,12 @@ export default function MessengerView() {
           >
             <div className="flex-1 px-2 mb-1">
               <textarea 
-                placeholder="Type a message... 💖"
-                className="w-full bg-transparent border-none focus:ring-0 text-sm py-1.5 resize-none max-h-32 text-pink-900 scrollbar-hide"
+                placeholder={isSending ? "Sending... ✨" : "Type a message... 💖"}
+                className="w-full bg-transparent border-none focus:ring-0 text-sm py-1.5 resize-none max-h-32 text-pink-900 scrollbar-hide disabled:opacity-50"
                 rows={1}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
+                disabled={isSending}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault()
@@ -157,7 +167,8 @@ export default function MessengerView() {
             <Button 
                 type="submit" 
                 size="icon" 
-                className="bg-pink-500 hover:bg-pink-600 h-9 w-9 rounded-xl flex-shrink-0"
+                disabled={isSending || !inputValue.trim()}
+                className="bg-pink-500 hover:bg-pink-600 h-9 w-9 rounded-xl flex-shrink-0 disabled:opacity-50"
             >
               <Send className="h-4 w-4" />
             </Button>
