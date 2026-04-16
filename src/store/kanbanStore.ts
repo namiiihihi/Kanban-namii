@@ -87,7 +87,18 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
       supabase.from('messages').select('*').order('created_at', { ascending: true })
     ])
     
-    if (tasks) set({ tasks: tasks as Task[] })
+    if (tasks) {
+      set({ 
+        tasks: (tasks as any[]).map(t => ({
+          id: t.id,
+          title: t.title,
+          description: t.description,
+          status: t.status,
+          assigneeId: t.assignee_id,
+          deadline: t.deadline
+        })) as Task[] 
+      })
+    }
     if (members) {
       set({ members: members as User[] })
     }
