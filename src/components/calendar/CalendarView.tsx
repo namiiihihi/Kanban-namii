@@ -58,7 +58,7 @@ export default function CalendarView() {
         <div className="flex items-center gap-6">
             <div>
                 <h2 className="text-2xl font-bold text-pink-900 flex items-center gap-3 capitalize">
-                    {format(currentDate, 'MMMM yyyy')} 🌸
+                    {format(currentDate, 'MMMM yyyy', { locale: vi })} 🌸
                 </h2>
                 <p className="text-sm text-pink-400">Đồng bộ với lịch thực tế 🎀</p>
             </div>
@@ -80,26 +80,28 @@ export default function CalendarView() {
         <div className="flex items-center gap-2 bg-white/60 p-1.5 rounded-2xl shadow-sm border border-pink-50">
           <Button 
             variant="ghost" 
-            size="icon" 
             onClick={prevMonth}
-            className="h-9 w-9 text-pink-500 hover:bg-pink-100 hover:text-pink-600 rounded-xl"
+            className="flex items-center gap-2 px-3 h-9 text-sm font-medium text-pink-500 hover:bg-pink-100 hover:text-pink-600 rounded-xl transition-all"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Tháng trước</span>
           </Button>
+          <div className="w-[1px] h-4 bg-pink-100 mx-1" />
           <Button 
             variant="ghost" 
             onClick={() => setCurrentDate(new Date())}
-            className="px-4 h-9 text-sm font-medium text-pink-600 hover:bg-pink-100 rounded-xl"
+            className="px-4 h-9 text-sm font-bold text-pink-600 hover:bg-pink-500 hover:text-white rounded-xl transition-all"
           >
             Hôm nay
           </Button>
+          <div className="w-[1px] h-4 bg-pink-100 mx-1" />
           <Button 
             variant="ghost" 
-            size="icon" 
             onClick={nextMonth}
-            className="h-9 w-9 text-pink-500 hover:bg-pink-100 hover:text-pink-600 rounded-xl"
+            className="flex items-center gap-2 px-3 h-9 text-sm font-medium text-pink-500 hover:bg-pink-100 hover:text-pink-600 rounded-xl transition-all"
           >
-            <ChevronRight className="h-5 w-5" />
+            <span className="hidden sm:inline">Tháng sau</span>
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
