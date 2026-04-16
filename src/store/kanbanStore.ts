@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { supabase } from '@/lib/supabase'
 
 export type Role = 'admin' | 'member'
 
@@ -21,114 +21,181 @@ export interface Task {
   deadline?: string // ISO string
 }
 
+export interface Message {
+  id: string
+  content: string
+  userId: string
+  createdAt: string
+}
+
 export interface KanbanState {
   members: User[]
   tasks: Task[]
+  messages: Message[]
   currentUser: User | null
   activeTaskId: string | null
+  activeModule: 'tasks' | 'messenger' | 'calendar' | 'analytics'
   currentView: 'board' | 'list'
   searchQuery: string
   
   // Actions
-  addTask: (task: Omit<Task, 'id'>) => void
-  removeTask: (taskId: string) => void
-  updateTask: (task: Partial<Task> & { id: string }) => void
-  updateTaskStatus: (taskId: string, newStatus: TaskStatus) => void
+  setInitialData: () => Promise<void>
+  setTasks: (tasks: Task[]) => void
+  setMembers: (members: User[]) => void
+  setMessages: (messages: Message[]) => void
+  
+  addTask: (task: Omit<Task, 'id'>) => Promise<void>
+  removeTask: (taskId: string) => Promise<void>
+  updateTask: (task: Partial<Task> & { id: string }) => Promise<void>
+  updateTaskStatus: (taskId: string, newStatus: TaskStatus) => Promise<void>
   setActiveTask: (taskId: string | null) => void
+  setActiveModule: (module: 'tasks' | 'messenger' | 'calendar' | 'analytics') => void
   setCurrentView: (view: 'board' | 'list') => void
   setSearchQuery: (query: string) => void
   
-  addMember: (member: Omit<User, 'id'>) => void
-  removeMember: (memberId: string) => void
-  updateMemberRole: (memberId: string, role: Role) => void
+  sendMessage: (content: string) => Promise<void>
+  
+  addMember: (member: Omit<User, 'id'>) => Promise<void>
+  removeMember: (memberId: string) => Promise<void>
+  updateMemberRole: (memberId: string, role: Role) => Promise<void>
 }
 
-const mockDefaultUser: User = {
-  id: 'u-1',
-  name: 'Admin Nhi 🎀',
-  role: 'admin',
-}
+export const useKanbanStore = create<KanbanState>((set, get) => ({
+  members: [],
+  tasks: [],
+  messages: [],
+  currentUser: null,
+  activeTaskId: null,
+  activeModule: 'tasks',
+  currentView: 'board',
+  searchQuery: '',
 
-export const useKanbanStore = create<KanbanState>()(
-  persist(
-    (set) => ({
-      members: [mockDefaultUser],
-      tasks: [
-        {
-          id: 't-1',
-          title: 'Design UI mockup 💖',
-          description: 'Create cute pink layout using Tailwind',
-          status: 'Todo',
-          assigneeId: 'u-1',
-        },
-        {
-          id: 't-2',
-          title: 'Setup Zustand 🎵',
-          description: 'Add state management for Kanban',
-          status: 'In Progress',
-          assigneeId: 'u-1',
-        },
-      ],
-      currentUser: mockDefaultUser, // Mock logged in user
-      activeTaskId: null,
-      currentView: 'board',
-      searchQuery: '',
+  setTasks: (tasks: Task[]) => set({ tasks }),
+  setMembers: (members: User[]) => set({ members }),
+  setMessages: (messages: Message[]) => set({ messages }),
 
-      addTask: (task) =>
-        set((state) => ({
-          tasks: [
-            ...state.tasks,
-            { ...task, id: `t-${Math.random().toString(36).substr(2, 9)}` },
-          ],
-        })),
-
-      removeTask: (taskId) =>
-        set((state) => ({
-          tasks: state.tasks.filter((t) => t.id !== taskId),
-        })),
-
-      updateTask: (taskUpdate) =>
-        set((state) => ({
-          tasks: state.tasks.map((t) =>
-            t.id === taskUpdate.id ? { ...t, ...taskUpdate } : t
-          ),
-        })),
-
-      updateTaskStatus: (taskId, newStatus) =>
-        set((state) => ({
-          tasks: state.tasks.map((t) =>
-            t.id === taskId ? { ...t, status: newStatus } : t
-          ),
-        })),
-
-      setActiveTask: (taskId) => set({ activeTaskId: taskId }),
-      
-      setCurrentView: (view) => set({ currentView: view }),
-      
-      setSearchQuery: (query) => set({ searchQuery: query }),
-
-      addMember: (member) =>
-        set((state) => ({
-          members: [
-            ...state.members,
-            { ...member, id: `u-${Math.random().toString(36).substr(2, 9)}` },
-          ],
-        })),
-
-      removeMember: (memberId) =>
-        set((state) => ({
-          members: state.members.filter((m) => m.id !== memberId),
-        })),
-
-      updateMemberRole: (memberId, role) =>
-        set((state) => ({
-          members: state.members.map((m) =>
-            m.id === memberId ? { ...m, role } : m
-          ),
-        })),
-    }),
-    {
-      name: 'kanban-storage',
+  setInitialData: async () => {
+    const [{ data: tasks }, { data: members }, { data: messages }] = await Promise.all([
+      supabase.from('tasks').select('*').order('created_at', { ascending: true }),
+      supabase.from('members').select('*'),
+      supabase.from('messages').select('*').order('created_at', { ascending: true })
+    ])
+    
+    if (tasks) set({ tasks: tasks as Task[] })
+    if (members) {
+      set({ members: members as User[] })
+      const admin = members.find(m => m.role === 'admin') || members[0]
+      if (admin) set({ currentUser: admin as User })
     }
-  )
-)
+    if (messages) {
+      set({ 
+        messages: messages.map(m => ({
+          id: m.id,
+          content: m.content,
+          userId: m.user_id,
+          createdAt: m.created_at
+        }))
+      })
+    }
+  },
+
+  addTask: async (taskData) => {
+    const id = `t-${Math.random().toString(36).substr(2, 9)}`
+    const newTask = { ...taskData, id }
+    set((state) => ({ tasks: [...state.tasks, newTask] }))
+    
+    const { error } = await supabase.from('tasks').insert([{
+      id,
+      title: newTask.title,
+      description: newTask.description,
+      status: newTask.status,
+      assignee_id: newTask.assigneeId,
+      deadline: newTask.deadline
+    }])
+    if (error) console.error('Error adding task:', error)
+  },
+
+  removeTask: async (taskId) => {
+    set((state) => ({ tasks: state.tasks.filter((t) => t.id !== taskId) }))
+    const { error } = await supabase.from('tasks').delete().eq('id', taskId)
+    if (error) console.error('Error removing task:', error)
+  },
+
+  updateTask: async (taskUpdate) => {
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t.id === taskUpdate.id ? { ...t, ...taskUpdate } : t
+      ),
+    }))
+
+    const { error } = await supabase.from('tasks').update({
+      title: taskUpdate.title,
+      description: taskUpdate.description,
+      status: taskUpdate.status,
+      assignee_id: taskUpdate.assigneeId,
+      deadline: taskUpdate.deadline
+    }).eq('id', taskUpdate.id)
+    if (error) console.error('Error updating task:', error)
+  },
+
+  updateTaskStatus: async (taskId, newStatus) => {
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t.id === taskId ? { ...t, status: newStatus } : t
+      ),
+    }))
+    const { error } = await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId)
+    if (error) console.error('Error updating status:', error)
+  },
+
+  setActiveTask: (taskId) => set({ activeTaskId: taskId }),
+  
+  setActiveModule: (module) => set({ activeModule: module }),
+
+  setCurrentView: (view) => set({ currentView: view }),
+  
+  setSearchQuery: (query) => set({ searchQuery: query }),
+
+  sendMessage: async (content) => {
+    const { currentUser } = get()
+    if (!currentUser) return
+
+    const { error } = await supabase.from('messages').insert([{
+      content,
+      user_id: currentUser.id
+    }])
+    
+    if (error) console.error('Error sending message:', error)
+  },
+
+  addMember: async (memberData) => {
+    const id = `u-${Math.random().toString(36).substr(2, 9)}`
+    const newMember = { ...memberData, id }
+    set((state) => ({ members: [...state.members, newMember] }))
+    const { error } = await supabase.from('members').insert([{
+      id,
+      name: newMember.name,
+      role: newMember.role,
+      avatar_url: newMember.avatarUrl
+    }])
+    if (error) console.error('Error adding member:', error)
+  },
+
+  removeMember: async (memberId) => {
+    set((state) => ({ members: state.members.filter((m) => m.id !== memberId) }))
+    const { error } = await supabase.from('members').delete().eq('id', memberId)
+    if (error) console.error('Error removing member:', error)
+  },
+
+  updateMemberRole: async (memberId, role) => {
+    set((state) => ({
+      members: state.members.map((m) =>
+        m.id === memberId ? { ...m, role } : m
+      ),
+    }))
+    const { error } = await supabase.from('members').update({ role }).eq('id', memberId)
+    if (error) console.error('Error updating member role:', error)
+  },
+}))
+
+

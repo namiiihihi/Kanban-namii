@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils'
 import { 
   CheckSquare, 
   MessageSquare, 
-  Files, 
+  BarChart2, 
   Calendar,
   Settings
 } from 'lucide-react'
@@ -11,16 +11,20 @@ import {
 const navItems = [
   { icon: CheckSquare, label: 'Tasks', id: 'tasks', emoji: '🎀' },
   { icon: MessageSquare, label: 'Messenger', id: 'messenger', emoji: '💖' },
-  { icon: Files, label: 'Docs', id: 'docs', emoji: '🎵' },
+  { icon: BarChart2, label: 'Progress', id: 'analytics', emoji: '🎵' },
   { icon: Calendar, label: 'Calendar', id: 'calendar', emoji: '🌸' },
-]
+] as const
 
 export default function Sidebar() {
-  const currentView = useKanbanStore((state) => state.currentView)
+  const activeModule = useKanbanStore((state) => state.activeModule)
+  const setActiveModule = useKanbanStore((state) => state.setActiveModule)
 
   return (
     <aside className="w-16 lg:w-20 bg-white/40 backdrop-blur-xl border-r border-pink-100 flex flex-col items-center py-6 gap-8 z-20">
-      <div className="text-2xl hover:scale-110 transition-transform cursor-pointer">
+      <div 
+        className="text-2xl hover:scale-110 transition-transform cursor-pointer"
+        onClick={() => setActiveModule('tasks')}
+      >
         🎀
       </div>
       
@@ -28,9 +32,10 @@ export default function Sidebar() {
         {navItems.map((item) => (
           <div
             key={item.id}
+            onClick={() => setActiveModule(item.id)}
             className={cn(
               "p-3 rounded-2xl cursor-pointer transition-all group relative flex items-center justify-center",
-              item.id === 'tasks' 
+              item.id === activeModule 
                 ? "bg-pink-100/80 text-pink-600 shadow-sm" 
                 : "text-pink-400 hover:bg-pink-50 hover:text-pink-500"
             )}
