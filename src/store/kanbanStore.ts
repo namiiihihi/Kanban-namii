@@ -233,7 +233,8 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     
     if (error) {
       console.error('Error sending message:', error)
-      // Rollback optimistic update if needed, but usually we just keep it or retry
+      alert(`Messenger Error: ${error.message || 'Unknown error'}`)
+      // Rollback optimistic update
       set((state) => ({ 
         messages: state.messages.filter(m => m.id !== tempId) 
       }))
