@@ -1,5 +1,6 @@
 import Sidebar from './Sidebar'
 import Header from './Header'
+import MascotCheer from '../mascot/MascotCheer'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -15,6 +16,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {children}
         </main>
       </div>
+      <MascotCheer />
     </div>
   )
 }
