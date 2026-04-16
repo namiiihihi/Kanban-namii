@@ -36,7 +36,7 @@ export default function MessengerView() {
   }, [messages.length])
 
   return (
-    <div className="h-full flex bg-white/20 backdrop-blur-md rounded-tl-3xl border-t border-l border-pink-100/50 overflow-hidden">
+    <div className="h-full flex bg-white/40 backdrop-blur-md overflow-hidden">
       {/* Members Sidebar */}
       <div className="w-64 border-r border-pink-50 flex flex-col bg-white/40">
         <div className="p-4 border-b border-pink-50 flex items-center justify-between">
@@ -145,17 +145,17 @@ export default function MessengerView() {
           </div>
         </div>
 
-        {/* Message Input */}
-        <div className="p-4 bg-white/40 backdrop-blur-md border-t border-pink-50">
+        {/* Message Input Area */}
+        <div className="p-6 bg-white/60 backdrop-blur-md border-t border-pink-100 shadow-[0_-4px_20px_rgba(236,72,153,0.05)]">
           <form 
             onSubmit={handleSend}
-            className="max-w-4xl mx-auto flex gap-2 items-end bg-white rounded-2xl p-2 shadow-sm border border-pink-100 focus-within:border-pink-300 transition-colors"
+            className="max-w-5xl mx-auto flex gap-3 items-end bg-white rounded-2xl p-3 shadow-sm border border-pink-100 focus-within:border-pink-300 focus-within:ring-4 focus-within:ring-pink-100/50 transition-all"
           >
-            <div className="flex-1 px-2 mb-1">
+            <div className="flex-1 px-2">
               <textarea 
-                placeholder={isSending ? "Sending... ✨" : "Type a message... 💖"}
-                className="w-full bg-transparent border-none focus:ring-0 text-sm py-1.5 resize-none max-h-32 text-pink-900 scrollbar-hide disabled:opacity-50"
-                rows={1}
+                placeholder={isSending ? "Sending your message... ✨" : "Write something sweet to the team... 💖"}
+                className="w-full bg-transparent border-none focus:ring-0 text-base py-2 resize-none max-h-48 text-pink-900 scrollbar-hide disabled:opacity-50"
+                rows={2}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 disabled={isSending}
@@ -171,14 +171,23 @@ export default function MessengerView() {
                 type="submit" 
                 size="icon" 
                 disabled={isSending || !inputValue.trim()}
-                className="bg-pink-500 hover:bg-pink-600 h-9 w-9 rounded-xl flex-shrink-0 disabled:opacity-50"
+                className="bg-pink-500 hover:bg-pink-600 h-12 w-12 rounded-xl flex-shrink-0 disabled:opacity-50 shadow-lg shadow-pink-200"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-5 w-5" />
             </Button>
           </form>
-          <div className="max-w-4xl mx-auto pt-2 flex items-center gap-4 text-[11px] text-pink-300 px-4">
-            <span className="hover:text-pink-500 cursor-pointer">Press Enter to send</span>
-            <span className="hover:text-pink-500 cursor-pointer">Shift + Enter for new line</span>
+          <div className="max-w-5xl mx-auto pt-3 flex items-center justify-between text-[11px] text-pink-400 px-2 font-medium">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1 hover:text-pink-600 cursor-pointer">
+                <span className="p-1 bg-pink-100 rounded text-[9px]">ENTER</span> Send
+              </span>
+              <span className="flex items-center gap-1 hover:text-pink-600 cursor-pointer">
+                <span className="p-1 bg-pink-100 rounded text-[9px]">SHIFT + ENTER</span> New line
+              </span>
+            </div>
+            <div className="flex items-center gap-1 opacity-60">
+              End-to-end encrypted 🔒
+            </div>
           </div>
         </div>
       </div>
