@@ -102,4 +102,18 @@
     pointer-events: none;
     z-index: -1;
   }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 241, 242, 0.5); /* pink-50/50 */
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #ec4899; /* pink-500 */
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #db2777; /* pink-600 */
+  }
 }

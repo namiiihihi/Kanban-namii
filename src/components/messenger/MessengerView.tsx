@@ -53,35 +53,33 @@ export default function MessengerView() {
             />
           </div>
         </div>
-        <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
-            <div className="px-3 py-2 text-xs font-semibold text-pink-400 uppercase tracking-wider">
-              Direct Messages
-            </div>
-            {members.map((member) => (
-              <div 
-                key={member.id}
-                className="flex items-center gap-3 px-3 py-2 rounded-xl border border-transparent hover:bg-pink-50 hover:border-pink-100 cursor-pointer transition-all group"
-              >
-                <div className="relative">
-                  <Avatar className="h-9 w-9 border border-pink-100">
-                    <AvatarImage src={member.avatarUrl} />
-                    <AvatarFallback className="bg-pink-50 text-pink-600">
-                      {member.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-400 border-2 border-white rounded-full" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-pink-900 truncate">
-                    {member.name} {member.id === currentUser?.id && ' (You)'}
-                  </p>
-                  <p className="text-xs text-pink-400 truncate">Online</p>
-                </div>
-              </div>
-            ))}
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+          <div className="px-3 py-2 text-xs font-semibold text-pink-400 uppercase tracking-wider">
+            Direct Messages
           </div>
-        </ScrollArea>
+          {members.map((member) => (
+            <div 
+              key={member.id}
+              className="flex items-center gap-3 px-3 py-2 rounded-xl border border-transparent hover:bg-pink-50 hover:border-pink-100 cursor-pointer transition-all group"
+            >
+              <div className="relative">
+                <Avatar className="h-9 w-9 border border-pink-100 shadow-sm">
+                  <AvatarImage src={member.avatarUrl} />
+                  <AvatarFallback className="bg-pink-50 text-pink-600">
+                    {member.name.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-400 border-2 border-white rounded-full" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-pink-900 truncate">
+                  {member.name} {member.id === currentUser?.id && ' (You)'}
+                </p>
+                <p className="text-xs text-pink-400 truncate">Online</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Main Chat Area */}
@@ -95,9 +93,12 @@ export default function MessengerView() {
         </div>
 
         {/* Messages List Area */}
-        <div className="flex-1 min-h-0 relative">
-          <ScrollArea className="h-full w-full">
-            <div className="p-6 space-y-6 max-w-4xl mx-auto pb-12">
+        <div className="flex-1 min-h-0 relative overflow-hidden">
+          <div 
+            className="absolute inset-0 overflow-y-auto p-6 space-y-6 custom-scrollbar"
+            style={{ scrollBehavior: 'auto' }}
+          >
+            <div className="max-w-4xl mx-auto pb-12">
               {messages.map((msg, index) => {
                 const senderFromMembers = members.find(m => m.id === msg.userId)
                 const isMe = msg.userId === currentUser?.id
@@ -107,10 +108,10 @@ export default function MessengerView() {
                 return (
                   <div 
                     key={msg.id} 
-                    className={`flex gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                    className={`flex gap-3 mb-6 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
                   >
                     <div className={`w-9 h-9 flex-shrink-0 ${!showAvatar && 'opacity-0'}`}>
-                      <Avatar className="h-9 w-9 border border-pink-100">
+                      <Avatar className="h-9 w-9 border border-pink-100 shadow-sm">
                         <AvatarImage src={sender?.avatarUrl} />
                         <AvatarFallback className="bg-pink-100 text-pink-600">
                           {sender?.name.substring(0, 2).toUpperCase() || '??'}
@@ -141,7 +142,7 @@ export default function MessengerView() {
               })}
               <div ref={scrollRef} />
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Message Input */}
