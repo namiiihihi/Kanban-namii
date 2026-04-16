@@ -13,35 +13,35 @@ const MASCOTS: Mascot[] = [
   {
     id: 'bunny',
     name: 'Thỏ Quyết Tâm',
-    img: '/mascots/bunny.png',
+    img: '/mascots/bunny.jpg',
     cheer: 'Mới thế đã nản à? Tiếp tục đi chứ! 🐰💢',
     welcome: 'Chào mừng bạn trở lại! Chiến thôi nào! 🎀'
   },
   {
     id: 'zen_cat',
     name: 'Mèo Thiền Sư',
-    img: '/mascots/zen_cat.png',
+    img: '/mascots/zen_cat.jpg',
     cheer: 'Hít một hơi thật sâu... Mọi thứ đều ổn cả. 🧘‍♂️',
     welcome: 'Nam mô... Chúc bạn một ngày làm việc bình an. 🙏'
   },
   {
     id: 'hamster',
     name: 'Hamster Gym',
-    img: '/mascots/hamster.png',
+    img: '/mascots/hamster.jpg',
     cheer: 'Không làm mà đòi có ăn à? Tập trung vào! 🐹🏋️',
     welcome: 'Khởi động xong chưa? Vô việc thôi! 💪'
   },
   {
     id: 'cats',
     name: 'Cặp Mèo Support',
-    img: '/mascots/cats.png',
+    img: '/mascots/cats.jpg',
     cheer: 'Chúng mình tin bạn làm được! Cố lên! 🐱🐱',
     welcome: 'Có chúng mình đây rồi, đừng lo nhé! 💖'
   },
   {
     id: 'tomato',
     name: 'Cà Chua Sassy',
-    img: '/mascots/tomato.png',
+    img: '/mascots/tomato.jpg',
     cheer: 'Nhìn cái gì? Tập trung làm việc đi! 🍅',
     welcome: 'Lại vào check-in à? Làm việc đi nha! 🔥'
   }
@@ -93,18 +93,17 @@ export default function MascotCheer() {
 
       {/* Mascot Image */}
       <div 
-        className="w-24 h-24 md:w-32 md:h-32 pointer-events-auto cursor-pointer group relative"
+        className="w-28 h-28 md:w-36 md:h-36 pointer-events-auto cursor-pointer group relative"
         onClick={() => {
           setBubbleText(mascot.cheer)
           setIsVisible(true)
           setTimeout(() => setIsVisible(false), 4000)
         }}
       >
-        <div className="absolute inset-0 bg-pink-200/20 rounded-full blur-2xl group-hover:bg-pink-300/30 transition-all duration-500" />
         <img 
           src={mascot.img} 
           alt={mascot.name}
-          className="w-full h-full object-contain relative transition-transform duration-500 hover:scale-110 active:scale-95 animate-float"
+          className="w-full h-full object-cover rounded-2xl border-4 border-white shadow-xl relative transition-transform duration-500 hover:scale-110 active:scale-95 animate-float"
         />
         
         {/* Tooltip on Hover */}
