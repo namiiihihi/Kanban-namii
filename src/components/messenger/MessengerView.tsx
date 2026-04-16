@@ -24,7 +24,7 @@ export default function MessengerView() {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages])
+  }, [messages.length])
 
   return (
     <div className="h-full flex bg-white/20 backdrop-blur-md rounded-tl-3xl border-t border-l border-pink-100/50 overflow-hidden">

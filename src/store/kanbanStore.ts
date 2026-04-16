@@ -213,12 +213,31 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     const { currentUser } = get()
     if (!currentUser) return
 
+    // Optimistic Update
+    const tempId = `m-temp-${Date.now()}`
+    const newMessage = {
+      id: tempId,
+      content,
+      userId: currentUser.id,
+      createdAt: new Date().toISOString()
+    }
+    
+    set((state) => ({ 
+      messages: [...state.messages, newMessage] 
+    }))
+
     const { error } = await supabase.from('messages').insert([{
       content,
       user_id: currentUser.id
     }])
     
-    if (error) console.error('Error sending message:', error)
+    if (error) {
+      console.error('Error sending message:', error)
+      // Rollback optimistic update if needed, but usually we just keep it or retry
+      set((state) => ({ 
+        messages: state.messages.filter(m => m.id !== tempId) 
+      }))
+    }
   },
 
   addMember: async (memberData) => {
