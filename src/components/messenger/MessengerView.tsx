@@ -28,10 +28,10 @@ export default function MessengerView() {
     }
   }
 
-  // Auto scroll to bottom
+  // Auto scroll to bottom - only when messages change
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: 'smooth' })
+      scrollRef.current.scrollIntoView({ behavior: 'auto' })
     }
   }, [messages.length])
 
@@ -94,53 +94,55 @@ export default function MessengerView() {
           </div>
         </div>
 
-        {/* Messages List */}
-        <ScrollArea className="flex-1 p-6">
-          <div className="space-y-6 max-w-4xl mx-auto">
-            {messages.map((msg, index) => {
-              const senderFromMembers = members.find(m => m.id === msg.userId)
-              const isMe = msg.userId === currentUser?.id
-              const sender = senderFromMembers || (isMe ? currentUser : null)
-              const showAvatar = index === 0 || messages[index - 1].userId !== msg.userId
+        {/* Messages List Area */}
+        <div className="flex-1 min-h-0 relative">
+          <ScrollArea className="h-full w-full">
+            <div className="p-6 space-y-6 max-w-4xl mx-auto pb-12">
+              {messages.map((msg, index) => {
+                const senderFromMembers = members.find(m => m.id === msg.userId)
+                const isMe = msg.userId === currentUser?.id
+                const sender = senderFromMembers || (isMe ? currentUser : null)
+                const showAvatar = index === 0 || messages[index - 1].userId !== msg.userId
 
-              return (
-                <div 
-                  key={msg.id} 
-                  className={`flex gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
-                >
-                  <div className={`w-9 h-9 flex-shrink-0 ${!showAvatar && 'opacity-0'}`}>
-                    <Avatar className="h-9 w-9 border border-pink-100">
-                      <AvatarImage src={sender?.avatarUrl} />
-                      <AvatarFallback className="bg-pink-100 text-pink-600">
-                        {sender?.name.substring(0, 2).toUpperCase() || '??'}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  <div className={`flex flex-col gap-1 max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                    {showAvatar && (
-                      <div className="flex items-center gap-2 px-1">
-                        <span className="text-xs font-bold text-pink-700">{sender?.name}</span>
-                        <span className="text-[10px] text-pink-300">
-                          {format(new Date(msg.createdAt), 'HH:mm')}
-                        </span>
+                return (
+                  <div 
+                    key={msg.id} 
+                    className={`flex gap-3 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}
+                  >
+                    <div className={`w-9 h-9 flex-shrink-0 ${!showAvatar && 'opacity-0'}`}>
+                      <Avatar className="h-9 w-9 border border-pink-100">
+                        <AvatarImage src={sender?.avatarUrl} />
+                        <AvatarFallback className="bg-pink-100 text-pink-600">
+                          {sender?.name.substring(0, 2).toUpperCase() || '??'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className={`flex flex-col gap-1 max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
+                      {showAvatar && (
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-xs font-bold text-pink-700">{sender?.name}</span>
+                          <span className="text-[10px] text-pink-300">
+                            {format(new Date(msg.createdAt), 'HH:mm')}
+                          </span>
+                        </div>
+                      )}
+                      <div className={`
+                        px-4 py-2.5 rounded-2xl shadow-sm text-sm
+                        ${isMe 
+                          ? 'bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-tr-none' 
+                          : 'bg-white text-pink-900 border border-pink-50 rounded-tl-none'
+                        }
+                      `}>
+                        {msg.content}
                       </div>
-                    )}
-                    <div className={`
-                      px-4 py-2.5 rounded-2xl shadow-sm text-sm
-                      ${isMe 
-                        ? 'bg-gradient-to-br from-pink-500 to-pink-600 text-white rounded-tr-none' 
-                        : 'bg-white text-pink-900 border border-pink-50 rounded-tl-none'
-                      }
-                    `}>
-                      {msg.content}
                     </div>
                   </div>
-                </div>
-              )
-            })}
-            <div ref={scrollRef} />
-          </div>
-        </ScrollArea>
+                )
+              })}
+              <div ref={scrollRef} />
+            </div>
+          </ScrollArea>
+        </div>
 
         {/* Message Input */}
         <div className="p-4 bg-white/40 backdrop-blur-md border-t border-pink-50">
