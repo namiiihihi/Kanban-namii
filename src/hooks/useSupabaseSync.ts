@@ -114,11 +114,30 @@ export function useSupabaseSync() {
             createdAt: newRecord.created_at || new Date().toISOString()
           }
           
-          useKanbanStore.setState((state) => ({
-            messages: state.messages.some(m => m.id === newMessage.id)
-              ? state.messages
-              : [...state.messages, newMessage]
-          }))
+          useKanbanStore.setState((state) => {
+            const currentUser = state.currentUser
+            const isMe = newRecord.user_id === currentUser?.id
+            
+            // If it's my message, look for an optimistic (temp) one to replace
+            if (isMe) {
+              const tempIndex = state.messages.findIndex(
+                m => m.id.startsWith('m-temp-') && m.content === newRecord.content
+              )
+              
+              if (tempIndex !== -1) {
+                const updatedMessages = [...state.messages]
+                updatedMessages[tempIndex] = newMessage
+                return { messages: updatedMessages }
+              }
+            }
+
+            // Otherwise, just append if it's not a duplicate by ID
+            return {
+              messages: state.messages.some(m => m.id === newMessage.id)
+                ? state.messages
+                : [...state.messages, newMessage]
+            }
+          })
         }
       )
       .subscribe((status) => {
