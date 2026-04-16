@@ -84,8 +84,12 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     if (tasks) set({ tasks: tasks as Task[] })
     if (members) {
       set({ members: members as User[] })
-      const admin = members.find(m => m.role === 'admin') || members[0]
-      if (admin) set({ currentUser: admin as User })
+      
+      // Restore session from localStorage
+      const savedUser = localStorage.getItem('kanban_user')
+      if (savedUser) {
+        set({ currentUser: JSON.parse(savedUser) })
+      }
     }
     if (messages) {
       set({ 
@@ -155,6 +159,37 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   setCurrentView: (view) => set({ currentView: view }),
   
   setSearchQuery: (query) => set({ searchQuery: query }),
+
+  login: async (name, role = 'member') => {
+    // Check if user already exists
+    const { data: existing } = await supabase
+      .from('members')
+      .select('*')
+      .eq('name', name)
+      .single()
+
+    let user: User
+    if (existing) {
+      user = existing as User
+    } else {
+      const id = `u-${Math.random().toString(36).substr(2, 9)}`
+      user = { id, name, role, avatarUrl: '' }
+      await supabase.from('members').insert([{
+        id,
+        name,
+        role,
+        avatar_url: ''
+      }])
+    }
+
+    set({ currentUser: user })
+    localStorage.setItem('kanban_user', JSON.stringify(user))
+  },
+
+  logout: () => {
+    set({ currentUser: null })
+    localStorage.removeItem('kanban_user')
+  },
 
   sendMessage: async (content) => {
     const { currentUser } = get()

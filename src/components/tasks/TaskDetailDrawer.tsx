@@ -60,7 +60,7 @@ export default function TaskDetailDrawer() {
                 <span className="text-xs font-mono text-pink-400">{task.id}</span>
               </div>
               <div className="flex items-center gap-2">
-                {currentUser?.role === 'admin' && (
+                {!!currentUser && (
                   <Button 
                     variant="ghost" 
                     size="icon" 

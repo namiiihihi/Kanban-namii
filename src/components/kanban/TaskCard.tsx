@@ -20,7 +20,7 @@ export default function TaskCard({ task, index }: Props) {
   const setActiveTask = useKanbanStore((state) => state.setActiveTask)
 
   const assignee = members.find((m) => m.id === task.assigneeId)
-  const canDelete = currentUser?.role === 'admin'
+  const canDelete = !!currentUser
 
   return (
     <Draggable draggableId={task.id} index={index}>
