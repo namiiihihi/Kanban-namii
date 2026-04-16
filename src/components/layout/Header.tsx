@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import ManageMembersModal from '@/components/members/ManageMembersModal'
 import { Input } from '@/components/ui/input'
-import { Search, LayoutGrid, List, Plus } from 'lucide-react'
+import { Search, LayoutGrid, List, Plus, LogOut, Users } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import CreateTaskModal from '@/components/tasks/CreateTaskModal'
 
@@ -15,6 +15,7 @@ export default function Header() {
   const currentView = useKanbanStore((state) => state.currentView)
   const setCurrentView = useKanbanStore((state) => state.setCurrentView)
   
+  const logout = useKanbanStore((state) => state.logout)
   const [isManageMembersOpen, setIsManageMembersOpen] = useState(false)
   const [isCreateTaskOpen, setIsCreateTaskOpen] = useState(false)
 
@@ -61,19 +62,30 @@ export default function Header() {
           <Button 
             variant="outline" 
             size="sm"
-            className="border-pink-200 text-pink-700 hover:bg-white/80 hidden lg:flex"
+            className="border-pink-200 text-pink-700 hover:bg-white/80 hidden lg:flex gap-2"
             onClick={() => setIsManageMembersOpen(true)}
           >
-            👥 Team
+            <Users className="h-4 w-4" />
+            Team
           </Button>
         )}
 
-        <Avatar className="h-9 w-9 border-2 border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition-all">
-          <AvatarImage src={currentUser?.avatarUrl} />
-          <AvatarFallback className="bg-pink-100 text-pink-700">
-            {currentUser?.name.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-2">
+            <Avatar className="h-9 w-9 border-2 border-white shadow-sm cursor-pointer hover:ring-2 hover:ring-pink-200 transition-all">
+                <AvatarImage src={currentUser?.avatarUrl} />
+                <AvatarFallback className="bg-pink-100 text-pink-700">
+                    {currentUser?.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+            </Avatar>
+            <Button 
+                variant="ghost" 
+                size="icon" 
+                className="hover:bg-pink-50 text-pink-400 hover:text-pink-600"
+                onClick={() => logout()}
+            >
+                <LogOut className="h-4 w-4" />
+            </Button>
+        </div>
       </div>
 
       <ManageMembersModal 

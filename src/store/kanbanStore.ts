@@ -171,13 +171,20 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     let user: User
     if (existing) {
       user = existing as User
+      // Force admin for owner if not already set
+      if (name === 'Bùi Xuân Nhi' && user.role !== 'admin') {
+        user.role = 'admin'
+        await supabase.from('members').update({ role: 'admin' }).eq('name', name)
+      }
     } else {
       const id = `u-${Math.random().toString(36).substr(2, 9)}`
-      user = { id, name, role, avatarUrl: '' }
+      // Hardcode admin for the owner
+      const assignedRole = name === 'Bùi Xuân Nhi' ? 'admin' : role
+      user = { id, name, role: assignedRole, avatarUrl: '' }
       await supabase.from('members').insert([{
         id,
         name,
-        role,
+        role: assignedRole,
         avatar_url: ''
       }])
     }
