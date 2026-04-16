@@ -7,6 +7,7 @@ import { useSupabaseSync } from './hooks/useSupabaseSync'
 import TasksView from './components/kanban/TasksView'
 import MessengerView from './components/messenger/MessengerView'
 import CalendarView from './components/calendar/CalendarView'
+import ProgressView from './components/analytics/ProgressView'
 import LoginView from './components/auth/LoginView'
 
 function App() {
@@ -14,6 +15,8 @@ function App() {
   const currentUser = useKanbanStore((state) => state.currentUser)
   useSupabaseSync() // Background sync
 
+  // The store initializes currentUser from localStorage immediately.
+  // We can just rely on the reactive state.
   if (!currentUser) {
     return <LoginView />
   }

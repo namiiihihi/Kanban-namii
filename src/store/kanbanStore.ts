@@ -60,11 +60,17 @@ export interface KanbanState {
   updateMemberRole: (memberId: string, role: Role) => Promise<void>
 }
 
+const getSavedUser = (): User | null => {
+  if (typeof window === 'undefined') return null
+  const saved = localStorage.getItem('kanban_user')
+  return saved ? JSON.parse(saved) : null
+}
+
 export const useKanbanStore = create<KanbanState>((set, get) => ({
   members: [],
   tasks: [],
   messages: [],
-  currentUser: null,
+  currentUser: getSavedUser(),
   activeTaskId: null,
   activeModule: 'tasks',
   currentView: 'board',
@@ -84,12 +90,6 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     if (tasks) set({ tasks: tasks as Task[] })
     if (members) {
       set({ members: members as User[] })
-      
-      // Restore session from localStorage
-      const savedUser = localStorage.getItem('kanban_user')
-      if (savedUser) {
-        set({ currentUser: JSON.parse(savedUser) })
-      }
     }
     if (messages) {
       set({ 
