@@ -99,52 +99,58 @@ export function useSupabaseSync() {
       .subscribe()
 
     // 4. Real-time Subscription for Messages
+    console.log('--- Initializing Messages Real-time Channel ---')
     const messagesChannel = supabase
-      .channel('messages-realtime')
+      .channel('messages-realtime-global')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
+        { event: '*', schema: 'public', table: 'messages' },
         (payload) => {
-          console.log('New message received via real-time:', payload)
-          const { new: newRecord } = payload
-          const newMessage = {
-            id: newRecord.id,
-            content: newRecord.content,
-            userId: newRecord.user_id,
-            createdAt: newRecord.created_at || new Date().toISOString()
-          }
+          console.log('🔔 Real-time Message Event:', payload.eventType, payload)
           
-          useKanbanStore.setState((state) => {
-            const currentUser = state.currentUser
-            const isMe = newRecord.user_id === currentUser?.id
+          if (payload.eventType === 'INSERT') {
+            const { new: newRecord } = payload
+            const newMessage = {
+              id: newRecord.id,
+              content: newRecord.content,
+              userId: newRecord.user_id,
+              createdAt: newRecord.created_at || new Date().toISOString()
+            }
             
-            // If it's my message, look for an optimistic (temp) one to replace
-            if (isMe) {
-              const tempIndex = state.messages.findIndex(
-                m => m.id.startsWith('m-temp-') && m.content === newRecord.content
-              )
+            useKanbanStore.setState((state) => {
+              const currentUser = state.currentUser
+              const isMe = newRecord.user_id === currentUser?.id
               
-              if (tempIndex !== -1) {
-                const updatedMessages = [...state.messages]
-                updatedMessages[tempIndex] = newMessage
-                return { messages: updatedMessages }
+              // If it's my message, look for an optimistic (temp) one to replace
+              if (isMe) {
+                const tempIndex = state.messages.findIndex(
+                  m => m.id.startsWith('m-temp-') && m.content === newRecord.content
+                )
+                
+                if (tempIndex !== -1) {
+                  const updatedMessages = [...state.messages]
+                  updatedMessages[tempIndex] = newMessage
+                  return { messages: updatedMessages }
+                }
               }
-            }
 
-            // Otherwise, just append if it's not a duplicate by ID
-            return {
-              messages: state.messages.some(m => m.id === newMessage.id)
-                ? state.messages
-                : [...state.messages, newMessage]
-            }
-          })
+              // check for duplicates by ID
+              if (state.messages.some(m => m.id === newMessage.id)) {
+                return state
+              }
+
+              return { messages: [...state.messages, newMessage] }
+            })
+          }
         }
       )
-      .subscribe((status) => {
-        console.log('Messages real-time status:', status)
+      .subscribe((status, err) => {
+        console.log('✅ Messages Channel Status:', status)
+        if (err) console.error('❌ Messages Channel Error:', err)
       })
 
     return () => {
+      console.log('--- Cleaning up Real-time Channels ---')
       supabase.removeChannel(tasksChannel)
       supabase.removeChannel(membersChannel)
       supabase.removeChannel(messagesChannel)
