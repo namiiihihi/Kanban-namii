@@ -1,5 +1,33 @@
 import { create } from 'zustand'
 import { supabase } from '@/lib/supabase'
+import confetti from 'canvas-confetti'
+
+const triggerDoneCelebration = () => {
+    // 1. Play Cheering sound
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2658/2658-preview.mp3')
+    audio.volume = 0.5
+    audio.play().catch(e => console.log('Audio play failed:', e))
+
+    // 2. Fire Fireworks (Confetti)
+    const duration = 3 * 1000
+    const animationEnd = Date.now() + duration
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 }
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+
+    const interval: any = setInterval(function() {
+        const timeLeft = animationEnd - Date.now()
+
+        if (timeLeft <= 0) {
+            return clearInterval(interval)
+        }
+
+        const particleCount = 50 * (timeLeft / duration)
+        // since particles fall down, start a bit higher than random
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } })
+        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } })
+    }, 250)
+}
 
 export type Role = 'admin' | 'member'
 
@@ -119,6 +147,11 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
     const newTask = { ...taskData, id }
     set((state) => ({ tasks: [...state.tasks, newTask] }))
     
+    // Play Ting Ting sound
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')
+    audio.volume = 0.4
+    audio.play().catch(e => console.log('Audio play failed:', e))
+
     const { error } = await supabase.from('tasks').insert([{
       id,
       title: newTask.title,
@@ -137,11 +170,18 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   updateTask: async (taskUpdate) => {
+    const oldTask = get().tasks.find(t => t.id === taskUpdate.id)
+    
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === taskUpdate.id ? { ...t, ...taskUpdate } : t
       ),
     }))
+
+    // Fireworks if status changed to Done
+    if (taskUpdate.status === 'Done' && oldTask?.status !== 'Done') {
+        triggerDoneCelebration()
+    }
 
     const { error } = await supabase.from('tasks').update({
       title: taskUpdate.title,
@@ -154,11 +194,19 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   },
 
   updateTaskStatus: async (taskId, newStatus) => {
+    const oldTask = get().tasks.find(t => t.id === taskId)
+    
     set((state) => ({
       tasks: state.tasks.map((t) =>
         t.id === taskId ? { ...t, status: newStatus } : t
       ),
     }))
+
+    // Fireworks if changed to Done
+    if (newStatus === 'Done' && oldTask?.status !== 'Done') {
+        triggerDoneCelebration()
+    }
+
     const { error } = await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId)
     if (error) console.error('Error updating status:', error)
   },
