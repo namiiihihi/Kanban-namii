@@ -30,9 +30,13 @@ export default function TaskCard({ task, index }: Props) {
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           onClick={() => setActiveTask(task.id)}
-          className={`bg-white rounded-xl p-4 shadow-sm border border-pink-100 group relative transition-shadow cursor-pointer ${
-            snapshot.isDragging ? 'shadow-lg ring-2 ring-pink-300 rotate-2' : 'hover:shadow-md hover:border-pink-200'
-          }`}
+          className={`bg-white rounded-xl p-4 shadow-sm border group relative transition-all cursor-pointer ${
+            snapshot.isDragging 
+              ? 'shadow-lg ring-2 ring-pink-300 rotate-2 border-pink-200' 
+              : task.status === 'Overdue'
+                ? 'hover:shadow-md border-red-200 bg-red-50/10 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                : 'hover:shadow-md border-pink-100 hover:border-pink-200'
+          } ${task.status === 'Overdue' ? 'ring-1 ring-red-100' : ''}`}
           style={provided.draggableProps.style}
         >
           {canDelete && (
@@ -55,8 +59,12 @@ export default function TaskCard({ task, index }: Props) {
           )}
 
           {task.deadline && (
-            <div className="flex items-center gap-1.5 text-[10px] font-medium text-pink-500 mb-3 bg-pink-50/50 w-fit px-2 py-0.5 rounded-full border border-pink-100">
-              <span>⏰</span>
+            <div className={`flex items-center gap-1.5 text-[10px] font-bold mb-3 w-fit px-2 py-0.5 rounded-full border transition-colors ${
+              task.status === 'Overdue' 
+                ? 'bg-red-500 text-white border-red-600 animate-pulse' 
+                : 'bg-pink-50/50 text-pink-500 border-pink-100'
+            }`}>
+              <span>{task.status === 'Overdue' ? '🔔' : '⏰'}</span>
               {format(new Date(task.deadline), 'dd/MM/yyyy HH:mm')}
             </div>
           )}

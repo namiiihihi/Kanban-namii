@@ -4,7 +4,7 @@ import { useKanbanStore } from '@/store/kanbanStore'
 import type { TaskStatus } from '@/store/kanbanStore'
 import Column from './Column'
 
-const COLUMNS: TaskStatus[] = ['Todo', 'In Progress', 'Done']
+const COLUMNS: TaskStatus[] = ['Todo', 'In Progress', 'Done', 'Overdue']
 
 export default function Board() {
   const tasks = useKanbanStore((state) => state.tasks)

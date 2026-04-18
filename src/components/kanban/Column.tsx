@@ -11,18 +11,28 @@ interface Props {
 const columnIcons: Record<TaskStatus, string> = {
   'Todo': '📝',
   'In Progress': '⏳',
-  'Done': '✅'
+  'Done': '✅',
+  'Overdue': '🔔'
+}
+
+const columnStyles: Record<TaskStatus, string> = {
+  'Todo': 'text-pink-800 border-pink-100',
+  'In Progress': 'text-purple-800 border-purple-100',
+  'Done': 'text-green-800 border-green-100',
+  'Overdue': 'text-red-800 border-red-200 bg-red-50/20'
 }
 
 export default function Column({ title, tasks }: Props) {
   return (
-    <div className="flex flex-col w-[350px] shrink-0 bg-white/40 backdrop-blur-md rounded-2xl border border-pink-100 shadow-sm overflow-hidden">
-      <div className="p-4 border-b border-pink-100 bg-white/50 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between">
-        <h2 className="font-semibold text-pink-800 flex items-center gap-2">
+    <div className={`flex flex-col w-[350px] shrink-0 bg-white/40 backdrop-blur-md rounded-2xl border shadow-sm overflow-hidden transition-all ${columnStyles[title]}`}>
+      <div className={`p-4 border-b bg-white/50 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between ${title === 'Overdue' ? 'border-red-100' : 'border-pink-100'}`}>
+        <h2 className={`font-bold flex items-center gap-2 ${title === 'Overdue' ? 'text-red-700 animate-pulse' : ''}`}>
           <span>{columnIcons[title]}</span>
           {title}
         </h2>
-        <span className="text-xs font-semibold text-pink-500 bg-pink-100 px-2 py-1 rounded-full">
+        <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+          title === 'Overdue' ? 'bg-red-500 text-white' : 'bg-pink-100 text-pink-500'
+        }`}>
           {tasks.length}
         </span>
       </div>

@@ -10,7 +10,7 @@ export interface User {
   avatarUrl?: string
 }
 
-export type TaskStatus = 'Todo' | 'In Progress' | 'Done'
+export type TaskStatus = 'Todo' | 'In Progress' | 'Done' | 'Overdue'
 
 export interface Task {
   id: string
