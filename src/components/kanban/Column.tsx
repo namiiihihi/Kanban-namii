@@ -24,7 +24,7 @@ const columnStyles: Record<TaskStatus, string> = {
 
 export default function Column({ title, tasks }: Props) {
   return (
-    <div className={`flex flex-col w-[350px] shrink-0 bg-white/40 backdrop-blur-md rounded-2xl border shadow-sm overflow-hidden transition-all ${columnStyles[title]}`}>
+    <div className={`flex flex-col w-[350px] h-full shrink-0 bg-white/40 backdrop-blur-md rounded-2xl border shadow-sm overflow-hidden transition-all ${columnStyles[title]}`}>
       <div className={`p-4 border-b bg-white/50 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between ${title === 'Overdue' ? 'border-red-100' : 'border-pink-100'}`}>
         <h2 className={`font-bold flex items-center gap-2 ${title === 'Overdue' ? 'text-red-700 animate-pulse' : ''}`}>
           <span>{columnIcons[title]}</span>
@@ -42,7 +42,7 @@ export default function Column({ title, tasks }: Props) {
           <div
             {...provided.droppableProps}
             ref={provided.innerRef}
-            className={`flex-1 p-3 flex flex-col gap-3 min-h-[150px] transition-colors ${
+            className={`flex-1 p-3 flex flex-col gap-3 min-h-[150px] overflow-y-auto custom-scrollbar transition-colors ${
               snapshot.isDraggingOver ? 'bg-pink-50/50' : ''
             }`}
           >

@@ -32,12 +32,16 @@ export default function TaskCard({ task, index }: Props) {
           onClick={() => setActiveTask(task.id)}
           className={`bg-white rounded-xl p-4 shadow-sm border group relative transition-all cursor-pointer ${
             snapshot.isDragging 
-              ? 'shadow-lg ring-2 ring-pink-300 rotate-2 border-pink-200' 
+              ? 'shadow-2xl ring-2 ring-pink-400 rotate-3 scale-105 border-pink-300 z-50 bg-white/95 backdrop-blur-sm' 
               : task.status === 'Overdue'
                 ? 'hover:shadow-md border-red-200 bg-red-50/10 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
                 : 'hover:shadow-md border-pink-100 hover:border-pink-200'
           } ${task.status === 'Overdue' ? 'ring-1 ring-red-100' : ''}`}
-          style={provided.draggableProps.style}
+          style={{
+            ...provided.draggableProps.style,
+            // Ensure any transform from the library is preserved
+            transform: provided.draggableProps.style?.transform,
+          }}
         >
           {canDelete && (
             <Button
