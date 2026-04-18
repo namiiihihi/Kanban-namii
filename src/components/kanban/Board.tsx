@@ -30,13 +30,6 @@ export default function Board() {
 
     const newStatus = destination.droppableId as TaskStatus
     updateTaskStatus(draggableId, newStatus)
-
-    // Play alarm sound if moved to Overdue
-    if (newStatus === 'Overdue') {
-      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/951/951-preview.mp3')
-      audio.volume = 0.5
-      audio.play().catch(e => console.log('Audio play failed:', e))
-    }
   }
 
   return (
