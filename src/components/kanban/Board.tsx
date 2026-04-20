@@ -36,7 +36,16 @@ export default function Board() {
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-6 h-full overflow-x-auto pb-4 pt-8 shrink-0">
         {COLUMNS.map((col) => {
-          const columnTasks = filteredTasks.filter((t) => t.status === col)
+          const columnTasks = filteredTasks
+            .filter((t) => t.status === col)
+            .sort((a, b) => {
+              // Tasks without deadline go to the bottom
+              if (!a.deadline && !b.deadline) return 0
+              if (!a.deadline) return 1
+              if (!b.deadline) return -1
+              // Sort by deadline: nearest first
+              return new Date(a.deadline).getTime() - new Date(b.deadline).getTime()
+            })
           return <Column key={col} title={col} tasks={columnTasks} />
         })}
       </div>
