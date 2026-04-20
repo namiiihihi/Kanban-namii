@@ -110,7 +110,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
 
   setInitialData: async () => {
     const [{ data: tasks }, { data: members }, { data: messages }] = await Promise.all([
-      supabase.from('tasks').select('*').order('created_at', { ascending: true }),
+      supabase.from('tasks').select('*').order('created_at', { ascending: false }),
       supabase.from('members').select('*'),
       supabase.from('messages').select('*').order('created_at', { ascending: true })
     ])
@@ -145,7 +145,7 @@ export const useKanbanStore = create<KanbanState>((set, get) => ({
   addTask: async (taskData) => {
     const id = `t-${Math.random().toString(36).substr(2, 9)}`
     const newTask = { ...taskData, id }
-    set((state) => ({ tasks: [...state.tasks, newTask] }))
+    set((state) => ({ tasks: [newTask, ...state.tasks] }))
     
     // Play Ting Ting sound
     const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')
